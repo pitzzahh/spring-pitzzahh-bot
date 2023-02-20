@@ -3,11 +3,11 @@ bot:
   channel:
     verify-channel-name: verify
     member-updates-channel: member-updates
-    enter-confession-channel: enter-secret-here
+    enter-confession-channel: enter-confessions-here
     sent-confessions-channel: secrets
   commands:
     verify-command: $verify
-    confessions-command: $confessions
+    confess-command: $confessions
     prefix: ;
   category:
     welcome-category: information

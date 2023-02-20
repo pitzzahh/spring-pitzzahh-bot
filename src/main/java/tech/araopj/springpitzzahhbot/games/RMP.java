@@ -24,21 +24,24 @@
 
 package tech.araopj.springpitzzahhbot.games;
 
-import io.github.pitzzahh.computing.Calculator;
-import io.github.pitzzahh.utilities.classes.enums.Difficulty;
-import io.github.pitzzahh.utilities.classes.enums.Operation;
+import static io.github.pitzzahh.util.utilities.classes.enums.Operation.*;
+import io.github.pitzzahh.util.utilities.classes.enums.Difficulty;
+import io.github.pitzzahh.util.utilities.classes.enums.Operation;
+import io.github.pitzzahh.util.computing.Calculator;
+import org.springframework.stereotype.Component;
+import static java.math.RoundingMode.HALF_UP;
+import static java.lang.String.valueOf;
+import static java.lang.String.format;
+import lombok.extern.slf4j.Slf4j;
 import java.math.MathContext;
 import java.util.Objects;
 import java.util.Random;
-import static io.github.pitzzahh.utilities.Print.println;
-import static io.github.pitzzahh.utilities.classes.enums.Operation.*;
-import static java.lang.String.format;
-import static java.lang.String.valueOf;
-import static java.math.RoundingMode.HALF_UP;
 
 /**
  * Class used to play random math problem.
  */
+@Slf4j
+@Component
 public class RMP {
 
     private static final Calculator calculator = new Calculator();
@@ -55,7 +58,7 @@ public class RMP {
     public static void play() {
         Objects.requireNonNull(difficulty, "Please set a difficulty");
         operation = getRandomOperation();
-        println(getQuestion());
+        log.debug(getQuestion());
         final var RESULT = calculator.calculate(firstNumber, secondNumber, operation);
         toBeAnswered = operation == DIVISION ? valueOf(RESULT.round(new MathContext(2, HALF_UP)) ): valueOf(RESULT);
     }

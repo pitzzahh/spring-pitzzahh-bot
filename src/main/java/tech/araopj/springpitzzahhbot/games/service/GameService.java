@@ -28,7 +28,7 @@ public record GameService(GameConfig gameConfig) {
      * param guess the user guess on a question.
      * returns {@code true} if the user guessed the answer.
      */
-    private boolean processAnswer(String player, String guess) {
+    public boolean processAnswer(String player, String guess) {
         final var ANSWER = gameConfig.questions()
                 .entrySet()
                 .stream()

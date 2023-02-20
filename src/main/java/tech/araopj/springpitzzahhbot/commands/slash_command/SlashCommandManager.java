@@ -28,6 +28,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.Game;
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.Joke;
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.Secret;
+import tech.araopj.springpitzzahhbot.config.ChannelsConfiguration;
 import tech.araopj.springpitzzahhbot.exceptions.CommandAlreadyExistException;
 import tech.araopj.springpitzzahhbot.games.service.GameService;
 import tech.araopj.springpitzzahhbot.service.ChannelService;
@@ -45,11 +46,11 @@ import java.util.Map;
 @Component
 public class SlashCommandManager {
 
-    private static final Map<String, SlashCommand> COMMANDS = new HashMap<>();
+    private final Map<String, SlashCommand> COMMANDS = new HashMap<>();
 
-    public SlashCommandManager(ChannelService channelService, GameService gameService, MessageUtil messageUtil) {
+    public SlashCommandManager(ChannelsConfiguration channelsConfiguration, ChannelService channelService, GameService gameService, MessageUtil messageUtil) {
         addCommands(
-                new Secret(channelService, messageUtil),
+                new Secret(channelsConfiguration, channelService, messageUtil),
                 new Game(gameService, messageUtil),
                 new Joke(messageUtil)
         );

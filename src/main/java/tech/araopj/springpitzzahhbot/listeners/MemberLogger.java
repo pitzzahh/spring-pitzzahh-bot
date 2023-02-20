@@ -24,7 +24,6 @@
 
 package tech.araopj.springpitzzahhbot.listeners;
 
-import io.github.pitzzahh.util.utilities.Util;
 import lombok.AllArgsConstructor;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -37,7 +36,6 @@ import org.springframework.stereotype.Component;
 import tech.araopj.springpitzzahhbot.config.ChannelsConfiguration;
 import tech.araopj.springpitzzahhbot.service.ChannelService;
 import tech.araopj.springpitzzahhbot.utilities.MessageUtil;
-
 import static java.awt.Color.GREEN;
 import static java.awt.Color.RED;
 import static java.lang.String.format;

@@ -24,6 +24,8 @@
 
 package tech.araopj.springpitzzahhbot.commands.slash_command.commands;
 
+import io.github.pitzzahh.util.utilities.classes.enums.Difficulty;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -36,13 +38,12 @@ import tech.araopj.springpitzzahhbot.games.service.GameService;
 import tech.araopj.springpitzzahhbot.utilities.MessageUtil;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import static io.github.pitzzahh.utilities.Print.println;
-import static io.github.pitzzahh.utilities.classes.enums.Difficulty.valueOf;
 import static java.awt.Color.*;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static tech.araopj.springpitzzahhbot.games.RMP.*;
 
+@Slf4j
 @Component
 public record Game(
         GameService gameService,
@@ -67,8 +68,8 @@ public record Game(
     private void process(CommandContext context) {
         final var PLAYER = requireNonNull(context.event().getMember(), "Null player").getEffectiveName();
         final var SELECTED_DIFFICULTY = requireNonNull(context.getEvent().getOption("difficulty"), "Null game difficulty").getAsString();
-        final var DIFFICULTY = valueOf(SELECTED_DIFFICULTY);
-        println("DIFFICULTY = " + RMP.getDifficulty());
+        final var DIFFICULTY = Difficulty.valueOf(SELECTED_DIFFICULTY);
+        log.debug("DIFFICULTY = " + RMP.getDifficulty());
         final var COLOR = switch (DIFFICULTY) {
             case EASY -> GREEN;
             case MEDIUM -> YELLOW;

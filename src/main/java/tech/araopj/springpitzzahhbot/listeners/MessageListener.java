@@ -23,14 +23,16 @@
  */
 package tech.araopj.springpitzzahhbot.listeners;
 
+import static io.github.pitzzahh.util.utilities.validation.Validator.isDecimalNumber;
+import static io.github.pitzzahh.util.utilities.validation.Validator.isWholeNumber;
 import static net.dv8tion.jda.api.interactions.components.buttons.Button.primary;
 import static net.dv8tion.jda.api.interactions.components.ActionRow.of;
 import static java.time.format.DateTimeFormatter.ofLocalizedTime;
 import static java.time.format.FormatStyle.SHORT;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
-
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
@@ -38,8 +40,10 @@ import org.springframework.stereotype.Component;
 import tech.araopj.springpitzzahhbot.commands.chat_command.CommandManager;
 import tech.araopj.springpitzzahhbot.config.ChannelsConfiguration;
 import tech.araopj.springpitzzahhbot.config.CommandsConfiguration;
+import tech.araopj.springpitzzahhbot.games.service.GameService;
+import tech.araopj.springpitzzahhbot.moderation.service.MessageCheckerService;
+import tech.araopj.springpitzzahhbot.service.ViolationService;
 import tech.araopj.springpitzzahhbot.utilities.MessageUtil;
-
 import java.util.Objects;
 import static java.awt.Color.*;
 import static java.lang.String.format;
@@ -50,6 +54,7 @@ import static java.time.ZoneId.of;
 /**
  * Class that listens to messages on text channels.
  */
+@Slf4j
 @Component
 @AllArgsConstructor
 public class MessageListener extends ListenerAdapter {
@@ -57,6 +62,9 @@ public class MessageListener extends ListenerAdapter {
     private final CommandManager MANAGER;
     private final CommandsConfiguration commandsConfiguration;
     private final ChannelsConfiguration channelsConfiguration;
+    private final MessageCheckerService messageCheckerService;
+    private final ViolationService violationService;
+    private final GameService gameService;
     private final MessageUtil messageUtil;
 
     @Override
@@ -124,11 +132,11 @@ public class MessageListener extends ListenerAdapter {
 
                     // TODO: refactor embedded messages, remove code and effort duplication
                     else if (!AUTHOR.isBot()){
-                        var contains = search.apply(event.getMessage().getContentRaw());
-                        System.out.println("is bad word = " + contains);
+                        var contains = messageCheckerService.searchForBadWord(event.getMessage().getContentRaw());
+                        log.debug("is bad word = " + contains);
                         if (contains && !AUTHOR.isBot()) {
-                            Util.addViolation(AUTHOR.getName());
-                            var isVeryBad = violatedThreeTimes(AUTHOR.getName());
+                            violationService.addViolation(AUTHOR.getName());
+                            var isVeryBad = violationService.violatedThreeTimes(AUTHOR.getName());
                             if (isVeryBad) {
                                 messageUtil.getEmbedBuilder().clear()
                                         .clearFields()
@@ -181,8 +189,8 @@ public class MessageListener extends ListenerAdapter {
                             }
                         }
 
-                        if (isTheOneWhoPlays(AUTHOR.getName())) {
-                            final var IS_CORRECT = answer.apply(AUTHOR.getName(), MESSAGE);
+                        if (gameService.isTheOneWhoPlays(AUTHOR.getName())) {
+                            final var IS_CORRECT = gameService.processAnswer(AUTHOR.getName(), MESSAGE);
                             if (isWholeNumber().or(isDecimalNumber()).test(MESSAGE)) {
                                 if (IS_CORRECT) {
                                     messageUtil.getEmbedBuilder().clear()

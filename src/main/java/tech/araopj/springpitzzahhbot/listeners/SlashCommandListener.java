@@ -24,20 +24,22 @@
 
 package tech.araopj.springpitzzahhbot.listeners;
 
-import io.github.pitzzahh.commands.slash_command.SlashCommand;
-import io.github.pitzzahh.commands.slash_command.SlashCommandManager;
-import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import tech.araopj.springpitzzahhbot.commands.slash_command.SlashCommandManager;
+import tech.araopj.springpitzzahhbot.commands.slash_command.SlashCommand;
+import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.springframework.stereotype.Component;
 import org.jetbrains.annotations.NotNull;
-
-import java.io.IOException;
 import java.util.function.Supplier;
+import lombok.AllArgsConstructor;
+import java.io.IOException;
 
-
+@Component
+@AllArgsConstructor
 public class SlashCommandListener extends ListenerAdapter {
 
-    private final SlashCommandManager SLASH_COMMAND_MANAGER = new SlashCommandManager();
+    private final SlashCommandManager SLASH_COMMAND_MANAGER;
 
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {

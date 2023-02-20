@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package tech.araopj.springpitzzahhbot.moderation;
+package tech.araopj.springpitzzahhbot.moderation.service;
 
 import tech.araopj.springpitzzahhbot.moderation.config.ModerationConfig;
 import org.springframework.stereotype.Service;
@@ -31,7 +31,7 @@ import java.io.IOException;
 import java.net.URL;
 
 @Service
-public record MessageChecker(ModerationConfig moderationConfig) {
+public record MessageCheckerService(ModerationConfig moderationConfig) {
 
     public boolean searchForBadWord(String rawMessage) {
         return moderationConfig.warnings()

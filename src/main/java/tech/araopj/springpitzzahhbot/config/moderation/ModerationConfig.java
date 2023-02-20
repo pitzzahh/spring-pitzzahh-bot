@@ -1,12 +1,9 @@
-package tech.araopj.springpitzzahhbot.moderation.config;
+package tech.araopj.springpitzzahhbot.config.moderation;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Configuration
 public class ModerationConfig {
@@ -18,6 +15,6 @@ public class ModerationConfig {
 
     @Bean
     public List<String> warnings() {
-        return  Collections.emptyList();
+        return new ArrayList<>();
     }
 }

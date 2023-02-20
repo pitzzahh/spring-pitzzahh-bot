@@ -1,6 +1,6 @@
-package tech.araopj.springpitzzahhbot.games.service;
+package tech.araopj.springpitzzahhbot.commands.slash_command.commands.game.service;
 
-import tech.araopj.springpitzzahhbot.games.config.GameConfig;
+import tech.araopj.springpitzzahhbot.commands.slash_command.commands.game.config.GameConfig;
 import org.springframework.stereotype.Service;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;

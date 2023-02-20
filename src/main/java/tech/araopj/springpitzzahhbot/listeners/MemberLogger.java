@@ -33,8 +33,8 @@ import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
-import tech.araopj.springpitzzahhbot.config.ChannelsConfiguration;
-import tech.araopj.springpitzzahhbot.service.ChannelService;
+import tech.araopj.springpitzzahhbot.config.channels.ChannelsConfig;
+import tech.araopj.springpitzzahhbot.config.channels.service.ChannelService;
 import tech.araopj.springpitzzahhbot.utilities.MessageUtil;
 import static java.awt.Color.GREEN;
 import static java.awt.Color.RED;
@@ -46,7 +46,7 @@ import static java.time.ZoneId.of;
 @AllArgsConstructor
 public class MemberLogger extends ListenerAdapter {
 
-    private final ChannelsConfiguration channelsConfiguration;
+    private final ChannelsConfig channelsConfig;
     private final ChannelService channelService;
     private final MessageUtil messageUtil;
 
@@ -57,7 +57,7 @@ public class MemberLogger extends ListenerAdapter {
      */
     @Override
     public void onGuildJoin(@NotNull GuildJoinEvent event) {
-        var memberUpdatesChannel = channelsConfiguration.getMemberUpdatesChannel();
+        var memberUpdatesChannel = channelsConfig.getMemberUpdatesChannel();
         event.getGuild()
                 .getCategoriesByName(memberUpdatesChannel, true)
                 .stream()
@@ -73,7 +73,7 @@ public class MemberLogger extends ListenerAdapter {
      */
     @Override
     public void onGuildLeave(@NotNull GuildLeaveEvent event) {
-        var memberUpdatesChannel = channelsConfiguration.getMemberUpdatesChannel();
+        var memberUpdatesChannel = channelsConfig.getMemberUpdatesChannel();
         event.getGuild()
                 .getCategoriesByName(memberUpdatesChannel, true)
                 .stream()

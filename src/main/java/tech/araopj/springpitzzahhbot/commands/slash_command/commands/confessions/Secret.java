@@ -22,10 +22,10 @@
  * SOFTWARE.
  */
 
-package tech.araopj.springpitzzahhbot.commands.slash_command.commands;
+package tech.araopj.springpitzzahhbot.commands.slash_command.commands.confessions;
 
-import lombok.SneakyThrows;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -33,14 +33,15 @@ import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.springframework.stereotype.Component;
 import tech.araopj.springpitzzahhbot.commands.slash_command.CommandContext;
 import tech.araopj.springpitzzahhbot.commands.slash_command.SlashCommand;
-import tech.araopj.springpitzzahhbot.config.ChannelsConfiguration;
-import tech.araopj.springpitzzahhbot.service.ChannelService;
+import tech.araopj.springpitzzahhbot.commands.slash_command.commands.confessions.service.SecretsService;
+import tech.araopj.springpitzzahhbot.config.channels.service.ChannelService;
 import tech.araopj.springpitzzahhbot.utilities.MessageUtil;
 
 import java.awt.*;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+
 import static java.awt.Color.GREEN;
 import static java.lang.String.format;
 import static java.time.LocalDateTime.now;
@@ -50,12 +51,12 @@ import static java.time.format.FormatStyle.SHORT;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
 /**
- * Class used to manage secret slash command.
+ * Class used to manage confessions slash command.
  */
 @Component
 public record Secret(
-        ChannelsConfiguration channelsConfiguration,
         ChannelService channelService,
+        SecretsService secretsService,
         MessageUtil messageUtil
 ) implements SlashCommand {
 
@@ -66,14 +67,14 @@ public record Secret(
 
     /**
      * Contains the process to be executed.
+     *
      * @param context the command context containing the information about the command.
      */
-    @SneakyThrows
     private void process(CommandContext context) {
-        if (context.getEvent().getChannel().getName().equals(channelsConfiguration.getEnterSecretChannel())) {
+        if (context.getEvent().getChannel().getName().equals(secretsService.enterSecretChannelName())) {
             final var CONFESSIONS = channelService.getChannelByName(context.getEvent(), "SENT_SECRET_CHANNEL");
 
-            final var SECRET_MESSAGE = Objects.requireNonNull(context.getEvent().getOption("secret-message")).getAsString();
+            final var SECRET_MESSAGE = Objects.requireNonNull(context.getEvent().getOption("confessions-message")).getAsString();
 
             messageUtil.getEmbedBuilder()
                     .clear()
@@ -83,11 +84,19 @@ public record Secret(
                     .setFooter("anonymous 👀")
                     .setTimestamp(now(of("UTC")));
             CONFESSIONS.ifPresent(c -> c.sendMessageEmbeds(messageUtil.getEmbedBuilder().build()).queue(message -> confirmationMessage(context, message)));
-        }
-        else {
+        } else {
             message(
                     "Cannot use command here",
-                    format("To tell a secret message, go to %s", channelService.getTextChannel(channelsConfiguration.getEnterSecretChannel()).getAsMention())
+                    format(
+                            "To tell a confessions message, go to %s",
+                            channelService
+                                    .getChannelByName(
+                                            context.event(),
+                                            secretsService
+                                                    .enterSecretChannelName()
+                                    )
+                                    .map(TextChannel::getAsMention).orElse("channel")
+                    )
             );
             context.getEvent()
                     .getInteraction()
@@ -99,7 +108,8 @@ public record Secret(
 
     /**
      * Constructs an embedded message.
-     * @param title the title of the message.
+     *
+     * @param title       the title of the message.
      * @param description the description of the message.
      */
     private void message(String title, String description) {
@@ -119,7 +129,8 @@ public record Secret(
     }
 
     /**
-     * Constructs the confirmation message when a user send a secret message.
+     * Constructs the confirmation message when a user send a confessions message.
+     *
      * @param context the context of the command.
      * @param message the message to be deleted after.
      */
@@ -135,16 +146,18 @@ public record Secret(
 
     /**
      * Supplies the name of the slash command.
+     *
      * @return a {@code Supplier<String>}.
      * @see Supplier
      */
     @Override
     public Supplier<String> name() {
-        return () -> "secret";
+        return () -> "confessions";
     }
 
     /**
      * Supplies the command data of a slash command.
+     *
      * @return a {@code Supplier<CommandData>}.
      * @see Supplier
      * @see CommandData
@@ -157,19 +170,20 @@ public record Secret(
         ).addOptions(
                 new OptionData(
                         OptionType.STRING,
-                        "secret-message",
-                        "Enter your secret message",
+                        "confessions-message",
+                        "Enter your confessions message",
                         true)
         );
     }
 
     /**
      * Supplies the description of a slash command.
+     *
      * @return a {code Supplier<String>} containing the description of the command.
      * @see Supplier
      */
     @Override
     public Supplier<String> description() {
-        return () -> "Tell a secret message";
+        return () -> "Tell a confessions message";
     }
 }

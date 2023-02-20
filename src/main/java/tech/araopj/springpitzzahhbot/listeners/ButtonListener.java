@@ -23,6 +23,7 @@
  */
 package tech.araopj.springpitzzahhbot.listeners;
 
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -39,6 +40,7 @@ import static java.time.LocalDateTime.now;
 import static java.time.format.DateTimeFormatter.ofLocalizedTime;
 import static java.time.format.FormatStyle.SHORT;
 
+@Slf4j
 @Component
 public class ButtonListener extends ListenerAdapter {
 
@@ -62,12 +64,12 @@ public class ButtonListener extends ListenerAdapter {
                         .stream()
                         .map(Role::getName)
                         .anyMatch(e -> VERIFIED_ROLE.get().getName().equals(e));
+                messageUtil.getMessageBuilder().clear();
                 if (isVerified) message(false);
                 else {
                     message(true);
                     event.getGuild().addRoleToMember(MEMBER, VERIFIED_ROLE.get()).queue();
                 }
-                messageUtil.getMessageBuilder().clear();
                 event.getInteraction()
                         .replyEmbeds(messageUtil.getEmbedBuilder().build())
                         .setEphemeral(true)

@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package tech.araopj.springpitzzahhbot.commands.slash_command.commands;
+package tech.araopj.springpitzzahhbot.commands.slash_command.commands.game;
 
 import io.github.pitzzahh.util.utilities.classes.enums.Difficulty;
 import lombok.extern.slf4j.Slf4j;
@@ -30,21 +30,21 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import tech.araopj.springpitzzahhbot.commands.slash_command.CommandContext;
 import tech.araopj.springpitzzahhbot.commands.slash_command.SlashCommand;
-import tech.araopj.springpitzzahhbot.games.RMP;
-import tech.araopj.springpitzzahhbot.games.service.GameService;
+import tech.araopj.springpitzzahhbot.commands.slash_command.commands.game.service.GameService;
+import tech.araopj.springpitzzahhbot.games.RandomMathProblemGenerator;
 import tech.araopj.springpitzzahhbot.utilities.MessageUtil;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import static java.awt.Color.*;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
-import static tech.araopj.springpitzzahhbot.games.RMP.*;
+import static tech.araopj.springpitzzahhbot.games.RandomMathProblemGenerator.*;
 
 @Slf4j
-@Component
+@Service
 public record Game(
         GameService gameService,
         MessageUtil messageUtil
@@ -69,7 +69,7 @@ public record Game(
         final var PLAYER = requireNonNull(context.event().getMember(), "Null player").getEffectiveName();
         final var SELECTED_DIFFICULTY = requireNonNull(context.getEvent().getOption("difficulty"), "Null game difficulty").getAsString();
         final var DIFFICULTY = Difficulty.valueOf(SELECTED_DIFFICULTY);
-        log.debug("DIFFICULTY = " + RMP.getDifficulty());
+        log.debug("DIFFICULTY = " + RandomMathProblemGenerator.getDifficulty());
         final var COLOR = switch (DIFFICULTY) {
             case EASY -> GREEN;
             case MEDIUM -> YELLOW;
@@ -82,7 +82,7 @@ public record Game(
                 .clearFields()
                 .setColor(COLOR)
                 .setTitle(format("Difficulty: %s", DIFFICULTY.name()))
-                .setDescription(RMP.getQuestion());
+                .setDescription(RandomMathProblemGenerator.getQuestion());
         context.getEvent()
                 .getInteraction()
                 .replyEmbeds(messageUtil.getEmbedBuilder().build())
@@ -114,7 +114,7 @@ public record Game(
                 .addOptions(
                         new OptionData(OptionType.STRING, "game", "Choose your game", true)
                                 .setDescription("Select your desired game")
-                                .addChoice("Random Math Problem", "RMP"),
+                                .addChoice("Random Math Problem", "RandomMathProblemGenerator"),
                         new OptionData(OptionType.STRING, "difficulty", "The difficulty of the game", true)
                                 .setDescription("Select your desired difficulty")
                                 .addChoice("EASY", "EASY")

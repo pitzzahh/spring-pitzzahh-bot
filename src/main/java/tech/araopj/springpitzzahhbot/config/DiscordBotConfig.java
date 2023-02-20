@@ -1,82 +1,105 @@
 package tech.araopj.springpitzzahhbot.config;
 
-import lombok.SneakyThrows;
-import net.dv8tion.jda.api.JDA;
+import org.springframework.beans.factory.annotation.Value;
+import tech.araopj.springpitzzahhbot.commands.slash_command.commands.confessions.service.SecretsService;
+import tech.araopj.springpitzzahhbot.commands.slash_command.commands.game.service.GameService;
+import tech.araopj.springpitzzahhbot.config.moderation.service.MessageCheckerService;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Bean;
 import tech.araopj.springpitzzahhbot.commands.chat_command.CommandManager;
+import tech.araopj.springpitzzahhbot.commands.service.CommandsService;
 import tech.araopj.springpitzzahhbot.commands.slash_command.SlashCommandManager;
-import tech.araopj.springpitzzahhbot.games.service.GameService;
+import tech.araopj.springpitzzahhbot.config.category.service.CategoryService;
+import tech.araopj.springpitzzahhbot.config.channels.ChannelsConfig;
 import tech.araopj.springpitzzahhbot.listeners.MemberLogger;
-import tech.araopj.springpitzzahhbot.moderation.service.MessageCheckerService;
-import tech.araopj.springpitzzahhbot.service.ChannelService;
-import tech.araopj.springpitzzahhbot.service.ViolationService;
+import tech.araopj.springpitzzahhbot.config.channels.service.ChannelService;
+import tech.araopj.springpitzzahhbot.config.moderation.service.ViolationService;
 import tech.araopj.springpitzzahhbot.utilities.MessageUtil;
 import tech.araopj.springpitzzahhbot.listeners.*;
+import javax.security.auth.login.LoginException;
+import java.io.IOException;
 
+@Slf4j
 @Configuration
 public class DiscordBotConfig {
 
     @Value("${bot.token}")
     private String token;
 
-    @Value("${bot.shardTotal}")
-    private int shardTotal;
-
-    @Value("${bot.shardId}")
-    private int shardId;
-
     private final ShardManager shardManager;
 
-    @SneakyThrows
     public DiscordBotConfig(
             MessageCheckerService messageCheckerService,
-            CommandManager commandManager,
-            CommandsConfiguration commandsConfiguration,
-            ChannelsConfiguration channelsConfiguration,
-            GameService gameService,
             ViolationService violationService,
-            MessageUtil messageUtil,
-            ChannelService channelService
+            CommandsService commandsService,
+            CategoryService categoryService,
+            CommandManager commandManager,
+            ChannelService channelService,
+            SecretsService secretsService,
+            GameService gameService,
+            MessageUtil messageUtil
     ) {
-        var builder = DefaultShardManagerBuilder.createDefault(token)
-                .setStatus(OnlineStatus.ONLINE)
-                .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_MESSAGES)
-                .setActivity(Activity.listening("your messages 📩"))
-                .setShardsTotal(shardTotal)
-                .setShards(shardId);
-        messageCheckerService.loadSwearWords();
+        log.debug("Initializing DiscordBotConfig");
+
+        var builder = DefaultShardManagerBuilder.createDefault(token);
+
+        builder.setStatus(OnlineStatus.ONLINE)
+                .enableIntents(GatewayIntent.MESSAGE_CONTENT)
+                .enableIntents(GatewayIntent.GUILD_MEMBERS)
+                .setActivity(Activity.listening("your messages 📩"));
+
+        try {
+            messageCheckerService.loadSwearWords();
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
 
         builder.addEventListeners(
-                new MessageListener(commandManager, commandsConfiguration, channelsConfiguration, messageCheckerService, violationService, gameService, messageUtil),
+                new MessageListener(
+                        messageCheckerService,
+                        violationService,
+                        commandsService,
+                        categoryService,
+                        channelService,
+                        secretsService,
+                        messageUtil,
+                        gameService,
+                        commandManager
+                ),
                 new ButtonListener(messageUtil),
                 new SlashCommandListener(
                         new SlashCommandManager(
-                                channelsConfiguration,
                                 channelService,
+                                secretsService,
                                 gameService,
                                 messageUtil
                         )
                 ),
                 new MemberLogger(
-                        new ChannelsConfiguration(),
-                        new ChannelService(new ChannelsConfiguration(), this),
+                        new ChannelsConfig(),
+                        new ChannelService(new ChannelsConfig()),
                         new MessageUtil()
                 )
         );
 
-        this.shardManager = builder.build();
+        try {
+            this.shardManager = builder.build();
+        } catch (LoginException e) {
+            throw new RuntimeException(e);
+        }
 
     }
 
     @Bean
-    public JDA jda() {
-        return shardManager.getShardById(shardId);
+    ShardManager shardManager() {
+        return shardManager;
     }
+
 }

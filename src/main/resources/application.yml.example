@@ -1,0 +1,15 @@
+bot:
+  token: <your bot token>
+  channel:
+    verify-channel-name: verify
+    member-updates-channel: member-updates
+    enter-confession-channel: enter-secret-here
+    sent-confessions-channel: secrets
+  commands:
+    verify-command: $verify
+    confessions-command: $confessions
+    prefix: ;
+  category:
+    welcome-category: information
+    member-updates-category: member-updates
+    create-confessions-category: confessions

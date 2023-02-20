@@ -1,6 +1,6 @@
-package tech.araopj.springpitzzahhbot.service;
+package tech.araopj.springpitzzahhbot.config.moderation.service;
 
-import tech.araopj.springpitzzahhbot.moderation.config.ModerationConfig;
+import tech.araopj.springpitzzahhbot.config.moderation.ModerationConfig;
 import org.springframework.stereotype.Service;
 import java.util.Map;
 

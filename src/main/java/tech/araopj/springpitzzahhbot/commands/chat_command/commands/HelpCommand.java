@@ -25,7 +25,7 @@ package tech.araopj.springpitzzahhbot.commands.chat_command.commands;
 import tech.araopj.springpitzzahhbot.commands.chat_command.CommandContext;
 import tech.araopj.springpitzzahhbot.commands.chat_command.CommandManager;
 import tech.araopj.springpitzzahhbot.commands.chat_command.Command;
-import tech.araopj.springpitzzahhbot.config.CommandsConfiguration;
+import tech.araopj.springpitzzahhbot.commands.CommandsConfig;
 import tech.araopj.springpitzzahhbot.utilities.MessageUtil;
 import org.springframework.stereotype.Component;
 import java.util.function.Consumer;
@@ -35,7 +35,7 @@ import java.awt.*;
 
 @Component
 public record HelpCommand(
-        CommandsConfiguration commandsConfiguration,
+        CommandsConfig commandsConfig,
         CommandManager MANAGER,
         MessageUtil messageUtil
 
@@ -60,7 +60,7 @@ public record HelpCommand(
                     .forEach(
                             c -> messageUtil.getEmbedBuilder()
                                     .addField(
-                                            commandsConfiguration.getPrefix().concat(c.name().get()),
+                                            commandsConfig.getPrefix().concat(c.name().get()),
                                             c.description().get(),
                                             true
                                     )
@@ -111,7 +111,7 @@ public record HelpCommand(
     @Override
     public Supplier<String> description() {
         return () -> "Shows the list of commands in the bot\n" +
-                     "Usage: ".concat(commandsConfiguration.getPrefix()).concat("help [chat_command]");
+                     "Usage: ".concat(commandsConfig.getPrefix()).concat("help [chat_command]");
     }
 
     /**

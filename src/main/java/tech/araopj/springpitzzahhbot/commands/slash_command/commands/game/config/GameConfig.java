@@ -1,4 +1,4 @@
-package tech.araopj.springpitzzahhbot.games.config;
+package tech.araopj.springpitzzahhbot.commands.slash_command.commands.game.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

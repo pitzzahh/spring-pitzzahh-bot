@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package tech.araopj.springpitzzahhbot.config;
+package tech.araopj.springpitzzahhbot.config.category;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,10 +32,12 @@ import lombok.Getter;
 @Configuration
 public class CategoryConfig {
 
-    @Value("${bot.member-updates-category}")
+    @Value("${bot.category.welcome-category}")
+    private String welcomeCategory;
+
+    @Value("${bot.category.member-updates-category}")
     private String memberUpdatesCategory;
 
-    @Value("${bot.create-secrets-category")
-    private String createSecretsCategory;
-
+    @Value("${bot.category.create-confessions-category}")
+    private String createConfessionsCategory;
 }

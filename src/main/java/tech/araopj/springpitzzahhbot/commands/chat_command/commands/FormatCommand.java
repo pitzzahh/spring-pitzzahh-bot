@@ -27,7 +27,7 @@ import static net.dv8tion.jda.api.interactions.components.buttons.Button.primary
 import tech.araopj.springpitzzahhbot.commands.chat_command.CommandContext;
 import static net.dv8tion.jda.api.interactions.components.ActionRow.of;
 import tech.araopj.springpitzzahhbot.commands.chat_command.Command;
-import tech.araopj.springpitzzahhbot.config.CommandsConfiguration;
+import tech.araopj.springpitzzahhbot.commands.CommandsConfig;
 import tech.araopj.springpitzzahhbot.utilities.MessageUtil;
 import org.springframework.stereotype.Component;
 import org.jetbrains.annotations.NotNull;
@@ -38,7 +38,7 @@ import static java.awt.Color.RED;
 
 @Component
 public record FormatCommand(
-        CommandsConfiguration commandsConfiguration,
+        CommandsConfig commandsConfig,
         MessageUtil messageUtil
 ) implements Command {
 
@@ -107,6 +107,6 @@ public record FormatCommand(
     @Override
     public Supplier<String> description() {
         return () -> "Formats a code.\n" +
-                "Usage: ".concat(commandsConfiguration.getPrefix().concat(name().get())).concat(" [language] [content]");
+                "Usage: ".concat(commandsConfig.getPrefix().concat(name().get())).concat(" [language] [content]");
     }
 }

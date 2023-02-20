@@ -23,10 +23,10 @@
  */
 package tech.araopj.springpitzzahhbot.utilities;
 
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Bean;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 @Configuration
 public class MessageUtil {
@@ -40,6 +40,5 @@ public class MessageUtil {
     public MessageBuilder getMessageBuilder() {
         return new MessageBuilder();
     }
-
 
 }

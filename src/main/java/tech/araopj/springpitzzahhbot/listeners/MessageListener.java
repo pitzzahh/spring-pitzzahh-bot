@@ -31,6 +31,7 @@ import static java.time.format.DateTimeFormatter.ofLocalizedTime;
 import static java.time.format.FormatStyle.SHORT;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
+
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -38,13 +39,17 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import tech.araopj.springpitzzahhbot.commands.chat_command.CommandManager;
-import tech.araopj.springpitzzahhbot.config.ChannelsConfiguration;
-import tech.araopj.springpitzzahhbot.config.CommandsConfiguration;
-import tech.araopj.springpitzzahhbot.games.service.GameService;
-import tech.araopj.springpitzzahhbot.moderation.service.MessageCheckerService;
-import tech.araopj.springpitzzahhbot.service.ViolationService;
+import tech.araopj.springpitzzahhbot.commands.service.CommandsService;
+import tech.araopj.springpitzzahhbot.commands.slash_command.commands.confessions.service.SecretsService;
+import tech.araopj.springpitzzahhbot.config.category.service.CategoryService;
+import tech.araopj.springpitzzahhbot.config.channels.service.ChannelService;
+import tech.araopj.springpitzzahhbot.commands.slash_command.commands.game.service.GameService;
+import tech.araopj.springpitzzahhbot.config.moderation.service.MessageCheckerService;
+import tech.araopj.springpitzzahhbot.config.moderation.service.ViolationService;
 import tech.araopj.springpitzzahhbot.utilities.MessageUtil;
+
 import java.util.Objects;
+
 import static java.awt.Color.*;
 import static java.lang.String.format;
 import static java.time.Clock.systemDefaultZone;
@@ -59,69 +64,82 @@ import static java.time.ZoneId.of;
 @AllArgsConstructor
 public class MessageListener extends ListenerAdapter {
 
-    private final CommandManager MANAGER;
-    private final CommandsConfiguration commandsConfiguration;
-    private final ChannelsConfiguration channelsConfiguration;
     private final MessageCheckerService messageCheckerService;
     private final ViolationService violationService;
-    private final GameService gameService;
+    private final CommandsService commandsService;
+    private final CategoryService categoryService;
+    private final ChannelService channelService;
+    private final SecretsService secretsService;
     private final MessageUtil messageUtil;
+    private final GameService gameService;
+    private final CommandManager MANAGER;
 
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
         final var AUTHOR = event.getAuthor();
-        final var PREFIX = commandsConfiguration.getPrefix();
+        final var PREFIX = commandsService.getPrefix();
         final var MESSAGE = event.getMessage().getContentRaw();
-        if (MESSAGE.startsWith(PREFIX)) MANAGER.handle(event);
+        if (MESSAGE.startsWith(PREFIX)) {
+            log.debug("Command received: {}", MESSAGE);
+            log.debug("Commands started with: {}", PREFIX);
+            MANAGER.handle(event);
+        }
         else {
-            if (MESSAGE.equals(commandsConfiguration.getVerifyCommand())) {
+            if (MESSAGE.equals(commandsService.getVerifyCommand()) && Objects.requireNonNull(event.getMember()).isOwner()) {
+                log.debug("Command received: {}", MESSAGE);
                 final var BUTTON = primary("verify-button", "Verify");
-                messageUtil.getEmbedBuilder().clear()
-                        .clearFields()
-                        .setColor(BLUE)
-                        .setTitle("Verify yourself")
-                        .appendDescription("Click the verify button to verify")
-                        .setTimestamp(now(of("UTC")))
-                        .setFooter(
-                                format("Created by %s", event.getJDA().getSelfUser().getAsTag()),
-                                event.getJDA().getSelfUser().getAvatarUrl()
-                        );
-                messageUtil.getMessageBuilder().clear()
-                        .setActionRows(of(BUTTON))
-                        .setEmbeds(messageUtil.getEmbedBuilder().build());
                 event.getGuild()
-                        .createTextChannel(channelsConfiguration.getVerifyChannelName())
-                        .queue(c -> c.sendMessage(messageUtil.getMessageBuilder().build()).queue());
-            }
-            else {
-                var sentSecretChannel = channelsConfiguration.getSentSecretChannel();
-                if (MESSAGE.equals(commandsConfiguration.getSecretsCommand()) && Objects.requireNonNull(event.getMember()).isOwner()){
-                    event.getGuild().createCategory(channelsConfiguration.getCreateSecretCategory())
+                        .createCategory(categoryService.welcomeCategoryName())
+                        .queue(
+                                category -> {
+                                    messageUtil.getEmbedBuilder().clear()
+                                            .clearFields()
+                                            .setColor(BLUE)
+                                            .setTitle("Verify yourself")
+                                            .appendDescription("Click the verify button to verify")
+                                            .setTimestamp(now(of("UTC")))
+                                            .setFooter(
+                                                    format("Created by %s", event.getJDA().getSelfUser().getAsTag()),
+                                                    event.getJDA().getSelfUser().getAvatarUrl()
+                                            );
+                                    messageUtil.getMessageBuilder().clear()
+                                            .setActionRows(of(BUTTON))
+                                            .setEmbeds(messageUtil.getEmbedBuilder().build());
+                                    category
+                                            .createTextChannel(channelService.verifyChannelName())
+                                            .queue(c -> c.sendMessage(messageUtil.getMessageBuilder().build()).queue());
+                                }
+                        );
+
+            } else {
+                var sentSecretChannel = secretsService.sentSecretChannelName();
+                if (MESSAGE.equals(commandsService.getConfessCommand()) && Objects.requireNonNull(event.getMember()).isOwner()) {
+                    event.getGuild().createCategory(categoryService.secretsCategoryName())
                             .syncPermissionOverrides()
                             .queue(
                                     category -> {
                                         messageUtil.getEmbedBuilder().clear()
                                                 .clearFields()
                                                 .setColor(CYAN)
-                                                .setTitle("Write your secret here")
-                                                .setDescription("your secret will be anonymous")
-                                                .appendDescription(", use `/secret` to tell a secret")
+                                                .setTitle("Write your confessions here")
+                                                .setDescription("your confessions will be anonymous")
+                                                .appendDescription(", use `/confessions` to tell a confessions")
                                                 .setFooter(
                                                         format("Created by %s", event.getJDA().getSelfUser().getAsTag()),
                                                         category.getJDA().getSelfUser().getAvatarUrl()
                                                 );
-                                        category.createTextChannel(channelsConfiguration.getEnterSecretChannel())
+                                        category.createTextChannel(secretsService.enterSecretChannelName())
                                                 .queue(c -> c.sendMessageEmbeds(messageUtil.getEmbedBuilder().build()).queue());
                                         category.createTextChannel(sentSecretChannel)
                                                 .queue();
-                            }
-                    );
+                                    }
+                            );
                 } else {
                     if (event.getChannel().getName().equals(sentSecretChannel) && !event.getAuthor().isBot()) {
                         messageUtil.getEmbedBuilder().clear()
                                 .clearFields()
                                 .setColor(RED)
-                                .appendDescription("Please use `/secret` to tell a secret")
+                                .appendDescription("Please use `/confessions` to tell a confessions")
                                 .setTimestamp(now(of("UTC")).plusSeconds(10))
                                 .setFooter("This message will be automatically deleted on");
                         event.getMessage()
@@ -131,7 +149,7 @@ public class MessageListener extends ListenerAdapter {
                     }
 
                     // TODO: refactor embedded messages, remove code and effort duplication
-                    else if (!AUTHOR.isBot()){
+                    else if (!AUTHOR.isBot()) {
                         var contains = messageCheckerService.searchForBadWord(event.getMessage().getContentRaw());
                         log.debug("is bad word = " + contains);
                         if (contains && !AUTHOR.isBot()) {
@@ -161,8 +179,7 @@ public class MessageListener extends ListenerAdapter {
                                         .timeout(5, MINUTES)
                                         .queue();
                                 event.getMessage().delete().queueAfter(2, SECONDS);
-                            }
-                            else {
+                            } else {
                                 messageUtil.getEmbedBuilder().clear()
                                         .clearFields()
                                         .setColor(RED)
@@ -204,8 +221,7 @@ public class MessageListener extends ListenerAdapter {
                                     event.getMessage()
                                             .replyEmbeds(messageUtil.getEmbedBuilder().build())
                                             .queue();
-                                }
-                                else {
+                                } else {
                                     messageUtil.getEmbedBuilder().clear()
                                             .clearFields()
                                             .setColor(RED)

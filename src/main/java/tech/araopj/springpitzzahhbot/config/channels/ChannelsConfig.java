@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package tech.araopj.springpitzzahhbot.config;
+package tech.araopj.springpitzzahhbot.config.channels;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,21 +30,12 @@ import lombok.Getter;
 
 @Getter
 @Configuration
-public class ChannelsConfiguration {
+public class ChannelsConfig {
 
     @Value("${bot.channel.verify-channel-name}")
     private String verifyChannelName;
 
     @Value("${bot.channel.member-updates-channel}")
     private String memberUpdatesChannel;
-
-    @Value("${bot.channel.enter-secret-channel}")
-    private String enterSecretChannel;
-
-    @Value("${bot.channel.sent-secret-channel}")
-    private String sentSecretChannel;
-
-    @Value("${bot.channel.create-secret-category}")
-    private String createSecretCategory;
 
 }

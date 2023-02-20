@@ -21,27 +21,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package tech.araopj.springpitzzahhbot.config.moderation.service;
 
-package tech.araopj.springpitzzahhbot.config;
+import tech.araopj.springpitzzahhbot.config.moderation.ModerationConfig;
+import org.springframework.stereotype.Service;
+import java.nio.charset.StandardCharsets;
+import com.google.common.io.Resources;
+import java.io.IOException;
+import java.net.URL;
 
-import org.springframework.context.annotation.Configuration;
-import org.springframework.beans.factory.annotation.Value;
-import lombok.Getter;
+@Service
+public record MessageCheckerService(ModerationConfig moderationConfig) {
 
-@Getter
-@Configuration
-public class CommandsConfiguration {
+    public boolean searchForBadWord(String rawMessage) {
+        return moderationConfig.warnings()
+                .stream()
+                .filter(rawMessage::contains)
+                .anyMatch(rawMessage::equalsIgnoreCase);
+    }
 
-    @Value("${bot.commands.verify-command}")
-    private String verifyCommand;
-
-    @Value("${bot.commands.secrets-command}")
-    private String secretsCommand;
-
-    @Value("${bot.commands.member-updates-command}")
-    private String memberUpdatesCommand;
-
-    @Value("${bot.commands.prefix}")
-    private String prefix;
+    /**
+     * Loads the swear words from a list from a GitHub repository and adds the csv file to a
+     * {@code List<String>}.
+     * @throws IOException if the list is not present.
+     */
+    public void loadSwearWords() throws IOException {
+        final var URL = new URL("https://raw.githubusercontent.com/pitzzahh/list-of-bad-words/main/list.txt");
+        moderationConfig.warnings().addAll(Resources.readLines(URL, StandardCharsets.UTF_8));
+    }
 
 }

@@ -24,14 +24,14 @@
 
 package tech.araopj.springpitzzahhbot.commands.slash_command;
 
+import tech.araopj.springpitzzahhbot.commands.slash_command.commands.game.service.GameService;
+import tech.araopj.springpitzzahhbot.commands.slash_command.commands.confessions.service.SecretsService;
+import tech.araopj.springpitzzahhbot.commands.slash_command.commands.game.Game;
+import tech.araopj.springpitzzahhbot.commands.slash_command.commands.confessions.Secret;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import tech.araopj.springpitzzahhbot.commands.slash_command.commands.Game;
-import tech.araopj.springpitzzahhbot.commands.slash_command.commands.Joke;
-import tech.araopj.springpitzzahhbot.commands.slash_command.commands.Secret;
-import tech.araopj.springpitzzahhbot.config.ChannelsConfiguration;
 import tech.araopj.springpitzzahhbot.exceptions.CommandAlreadyExistException;
-import tech.araopj.springpitzzahhbot.games.service.GameService;
-import tech.araopj.springpitzzahhbot.service.ChannelService;
+import tech.araopj.springpitzzahhbot.config.channels.service.ChannelService;
+import tech.araopj.springpitzzahhbot.commands.slash_command.commands.Joke;
 import tech.araopj.springpitzzahhbot.utilities.MessageUtil;
 import org.springframework.stereotype.Component;
 import org.jetbrains.annotations.NotNull;
@@ -48,9 +48,14 @@ public class SlashCommandManager {
 
     private final Map<String, SlashCommand> COMMANDS = new HashMap<>();
 
-    public SlashCommandManager(ChannelsConfiguration channelsConfiguration, ChannelService channelService, GameService gameService, MessageUtil messageUtil) {
+    public SlashCommandManager(
+            ChannelService channelService,
+            SecretsService secretsService,
+            GameService gameService,
+            MessageUtil messageUtil
+    ) {
         addCommands(
-                new Secret(channelsConfiguration, channelService, messageUtil),
+                new Secret(channelService, secretsService, messageUtil),
                 new Game(gameService, messageUtil),
                 new Joke(messageUtil)
         );

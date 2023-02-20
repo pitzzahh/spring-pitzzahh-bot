@@ -22,39 +22,31 @@
  * SOFTWARE.
  */
 
-package tech.araopj.springpitzzahhbot.service;
+package tech.araopj.springpitzzahhbot.config.channels.service;
 
-import lombok.SneakyThrows;
-import net.dv8tion.jda.api.events.guild.GenericGuildEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import tech.araopj.springpitzzahhbot.exceptions.ChannelNotFoundException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import tech.araopj.springpitzzahhbot.config.ChannelsConfiguration;
-import tech.araopj.springpitzzahhbot.config.DiscordBotConfig;
+import net.dv8tion.jda.api.events.guild.GenericGuildEvent;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.springframework.stereotype.Service;
-import static java.lang.String.format;
+import tech.araopj.springpitzzahhbot.config.channels.ChannelsConfig;
+
 import java.util.Objects;
 import java.util.Optional;
 
 @Service
 public record ChannelService(
-        ChannelsConfiguration channelsConfiguration,
-        DiscordBotConfig discordBotConfig
+        ChannelsConfig channelsConfig
 ) {
 
-    @SneakyThrows
-    public TextChannel getTextChannel(String name) {
-        return discordBotConfig
-                .jda()
-                .getTextChannels()
-                .stream()
-                .filter(e -> e.getName().equals(name))
-                .findAny()
-                .orElseThrow(() -> new ChannelNotFoundException(format("Cannot find: %s channel", name)));
+    public String verifyChannelName() {
+        return channelsConfig.getVerifyChannelName();
     }
 
+    public String getMemberUpdatesChannel() {
+        return channelsConfig.getMemberUpdatesChannel();
+    }
 
     public Optional<TextChannel> getChannelByName(GenericGuildEvent event, String name) {
         return event

@@ -28,7 +28,7 @@ import tech.araopj.springpitzzahhbot.commands.chat_command.commands.FormatComman
 import tech.araopj.springpitzzahhbot.commands.chat_command.commands.HelpCommand;
 import tech.araopj.springpitzzahhbot.commands.chat_command.commands.PingCommand;
 import tech.araopj.springpitzzahhbot.exceptions.CommandAlreadyExistException;
-import tech.araopj.springpitzzahhbot.config.CommandsConfiguration;
+import tech.araopj.springpitzzahhbot.commands.CommandsConfig;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import tech.araopj.springpitzzahhbot.utilities.MessageUtil;
 import org.springframework.stereotype.Component;
@@ -44,15 +44,15 @@ import java.util.List;
 public class CommandManager {
 
     private final List<Command> COMMANDS = new ArrayList<>();
-    private final CommandsConfiguration commandsConfiguration;
+    private final CommandsConfig commandsConfig;
 
     @Autowired
-    public CommandManager(CommandsConfiguration commandsConfiguration, MessageUtil messageUtil) {
-        this.commandsConfiguration = commandsConfiguration;
+    public CommandManager(CommandsConfig commandsConfig, MessageUtil messageUtil) {
+        this.commandsConfig = commandsConfig;
         addCommands(
                 new PingCommand(),
-                new FormatCommand(commandsConfiguration, messageUtil),
-                new HelpCommand(commandsConfiguration,this, messageUtil)
+                new FormatCommand(commandsConfig, messageUtil),
+                new HelpCommand(commandsConfig,this, messageUtil)
         );
     }
 
@@ -87,7 +87,7 @@ public class CommandManager {
      */
     public void handle(@NotNull MessageReceivedEvent event) {
         final var SPLIT = event.getMessage().getContentRaw()
-                .replaceFirst("(?i)".concat(Pattern.quote(commandsConfiguration.getPrefix())), "")
+                .replaceFirst("(?i)".concat(Pattern.quote(commandsConfig.getPrefix())), "")
                 .split("\\s+");
         final var INVOKED = SPLIT[0].toLowerCase();
         final var COMMAND = getCommand.apply(INVOKED);

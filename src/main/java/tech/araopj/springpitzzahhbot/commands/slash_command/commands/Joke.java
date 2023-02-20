@@ -43,9 +43,7 @@ import static java.time.LocalDateTime.now;
 import static java.time.ZoneId.of;
 
 @Component
-public record Joke(
-        MessageUtil messageUtil
-) implements SlashCommand {
+public record Joke(MessageUtil messageUtil) implements SlashCommand {
 
     /**
      * Executes a {@code SlashCommand}

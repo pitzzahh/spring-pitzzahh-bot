@@ -42,7 +42,7 @@ import java.util.Random;
  */
 @Slf4j
 @Component
-public class RMP {
+public class RandomMathProblemGenerator {
 
     private static final Calculator calculator = new Calculator();
     private static final Random RANDOM = new Random();

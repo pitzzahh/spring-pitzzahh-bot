@@ -1,0 +1,14 @@
+bot:
+  token: MTAwODYwNDM0MTUxMjQ0MTk0Nw.G-XiYe.6E7vIdH9YEmJ-OCk-AsG9ZPrFKxg02HgAhzdyo
+  shardTotal: 1
+  shardId: 0
+  channel:
+    verify-channel-name: verify
+    member-updates-channel: member-updates
+    enter-secret-channel: enter-secret-here
+    create-secret-category: SECRET
+    sent-secret-channel: secrets
+  commands:
+    verify-command: $verify
+    prefix: ;
+

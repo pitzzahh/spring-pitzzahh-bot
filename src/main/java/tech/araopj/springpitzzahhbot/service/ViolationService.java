@@ -1,22 +1,22 @@
 package tech.araopj.springpitzzahhbot.service;
 
-import tech.araopj.springpitzzahhbot.utilities.MessageUtil;
+import tech.araopj.springpitzzahhbot.moderation.config.ModerationConfig;
 import org.springframework.stereotype.Service;
 import java.util.Map;
 
 @Service
-public record ViolationService(MessageUtil messageUtil) {
+public record ViolationService(ModerationConfig moderationConfig) {
 
     /**
      * Adds violation to anyone who says a bad words.
      * @param username the username of the user who violated.
      */
     public void addViolation(final String username) {
-        messageUtil.violations().put(username, getViolationCount(username) + 1);
+        moderationConfig.violations().put(username, getViolationCount(username) + 1);
     }
 
     private Integer getViolationCount(String username) {
-        return messageUtil.violations()
+        return moderationConfig.violations()
                 .entrySet()
                 .stream()
                 .filter(e -> e.getKey().equals(username))
@@ -27,7 +27,7 @@ public record ViolationService(MessageUtil messageUtil) {
 
     public boolean violatedThreeTimes(String username) {
         var violated = getViolationCount(username) >= 3;
-        if (violated) messageUtil.violations().remove(username);
+        if (violated) moderationConfig.violations().remove(username);
         return violated;
     }
 

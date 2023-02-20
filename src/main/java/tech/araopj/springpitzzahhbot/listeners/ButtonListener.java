@@ -42,7 +42,6 @@ import static java.time.format.FormatStyle.SHORT;
 @Component
 public class ButtonListener extends ListenerAdapter {
 
-
     private final MessageUtil messageUtil;
 
     @Autowired

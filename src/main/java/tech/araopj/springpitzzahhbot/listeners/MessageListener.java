@@ -40,16 +40,15 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import tech.araopj.springpitzzahhbot.commands.chat_command.CommandManager;
 import tech.araopj.springpitzzahhbot.commands.service.CommandsService;
-import tech.araopj.springpitzzahhbot.commands.slash_command.commands.confessions.service.SecretsService;
+import tech.araopj.springpitzzahhbot.commands.slash_command.commands.confessions.Confession;
+import tech.araopj.springpitzzahhbot.commands.slash_command.commands.confessions.service.ConfessionService;
 import tech.araopj.springpitzzahhbot.config.category.service.CategoryService;
 import tech.araopj.springpitzzahhbot.config.channels.service.ChannelService;
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.game.service.GameService;
 import tech.araopj.springpitzzahhbot.config.moderation.service.MessageCheckerService;
 import tech.araopj.springpitzzahhbot.config.moderation.service.ViolationService;
 import tech.araopj.springpitzzahhbot.utilities.MessageUtil;
-
 import java.util.Objects;
-
 import static java.awt.Color.*;
 import static java.lang.String.format;
 import static java.time.Clock.systemDefaultZone;
@@ -65,14 +64,15 @@ import static java.time.ZoneId.of;
 public class MessageListener extends ListenerAdapter {
 
     private final MessageCheckerService messageCheckerService;
+    private final ConfessionService confessionService;
     private final ViolationService violationService;
     private final CommandsService commandsService;
     private final CategoryService categoryService;
     private final ChannelService channelService;
-    private final SecretsService secretsService;
+    private final CommandManager commandManager;
     private final MessageUtil messageUtil;
     private final GameService gameService;
-    private final CommandManager MANAGER;
+    private final Confession confession;
 
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
@@ -82,7 +82,7 @@ public class MessageListener extends ListenerAdapter {
         if (MESSAGE.startsWith(PREFIX)) {
             log.debug("Command received: {}", MESSAGE);
             log.debug("Commands started with: {}", PREFIX);
-            MANAGER.handle(event);
+            commandManager.handle(event);
         }
         else {
             if (MESSAGE.equals(commandsService.getVerifyCommand()) && Objects.requireNonNull(event.getMember()).isOwner()) {
@@ -112,10 +112,10 @@ public class MessageListener extends ListenerAdapter {
                         );
 
             } else {
-                var sentSecretChannel = secretsService.sentSecretChannelName();
+                var sentSecretChannel = confessionService.sentSecretChannelName();
                 if (MESSAGE.equals(commandsService.getConfessCommand()) && Objects.requireNonNull(event.getMember()).isOwner()) {
-                    event.getGuild().createCategory(categoryService.secretsCategoryName())
-                            .syncPermissionOverrides()
+                    event.getGuild()
+                            .createCategory(categoryService.secretsCategoryName())
                             .queue(
                                     category -> {
                                         messageUtil.getEmbedBuilder().clear()
@@ -123,14 +123,16 @@ public class MessageListener extends ListenerAdapter {
                                                 .setColor(CYAN)
                                                 .setTitle("Write your confessions here")
                                                 .setDescription("your confessions will be anonymous")
-                                                .appendDescription(", use `/confessions` to tell a confessions")
+                                                .appendDescription(format(", use `/%s` to tell a confession", confession.name().get()))
                                                 .setFooter(
                                                         format("Created by %s", event.getJDA().getSelfUser().getAsTag()),
                                                         category.getJDA().getSelfUser().getAvatarUrl()
                                                 );
-                                        category.createTextChannel(secretsService.enterSecretChannelName())
+                                        category.createTextChannel(confessionService.enterSecretChannelName())
+                                                .setTopic("This is a channel where you can write your confessions")
                                                 .queue(c -> c.sendMessageEmbeds(messageUtil.getEmbedBuilder().build()).queue());
                                         category.createTextChannel(sentSecretChannel)
+                                                .setTopic("This is a channel contains all the confessions made by users")
                                                 .queue();
                                     }
                             );
@@ -139,7 +141,7 @@ public class MessageListener extends ListenerAdapter {
                         messageUtil.getEmbedBuilder().clear()
                                 .clearFields()
                                 .setColor(RED)
-                                .appendDescription("Please use `/confessions` to tell a confessions")
+                                .appendDescription(format("Please use `/%s` to tell a confessions", confession.name().get()))
                                 .setTimestamp(now(of("UTC")).plusSeconds(10))
                                 .setFooter("This message will be automatically deleted on");
                         event.getMessage()

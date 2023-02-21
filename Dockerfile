@@ -1,14 +1,14 @@
 #
 # Build Stage
 #
-FROM maven:3.8.6-openjdk-18-slim AS build
+FROM maven:3.8.6-openjdk-19-slim AS build
 COPY . .
 RUN mvn clean package -DskipTests
 
 #
 # Packaging Stage
 # Use an openjdk base image
-FROM eclipse-temurin:19-jdk
+FROM openjdk:19-jdk-slim
 
 # Copy the compiled jar file from the build stage
 COPY --from=build /target/*.jar app.jar

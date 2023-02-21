@@ -18,9 +18,12 @@ public record CommandsService(CommandsConfig commandsConfig) {
         return commandsConfig.getMemberUpdatesCommand();
     }
 
+    public int messageDeletionDelay() {
+        return commandsConfig.getMessageDeletionDelayInMinutes();
+    }
+
     public String getPrefix() {
         return commandsConfig.getPrefix();
     }
-
 
 }

@@ -32,10 +32,10 @@ import lombok.Getter;
 @Configuration
 public class ChannelsConfig {
 
-    @Value("${bot.channel.verify-channel-name}")
+    @Value("${bot.channel.verification.name}")
     private String verifyChannelName;
 
-    @Value("${bot.channel.member-updates-channel}")
+    @Value("${bot.channel.member-updates-channel.name}")
     private String memberUpdatesChannel;
 
 }

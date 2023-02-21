@@ -1,17 +1,23 @@
 package tech.araopj.springpitzzahhbot.commands.slash_command.commands.game.service;
 
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.game.config.GameConfig;
+import tech.araopj.springpitzzahhbot.games.RandomMathProblemGenerator;
 import org.springframework.stereotype.Service;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 import java.util.Objects;
 import java.util.Map;
 
+@Slf4j
 @Service
 public record GameService(GameConfig gameConfig) {
 
     public BiConsumer<String, String> addQuestion() {
-        return (username, answer) -> gameConfig.questions().put(username, answer);
+        return (username, answer) -> {
+            log.info("player = " + username);
+            log.info("answer = " + answer);
+            gameConfig.questions().put(username, answer);
+        };
     }
 
     public boolean isTheOneWhoPlays(String username) {
@@ -29,14 +35,10 @@ public record GameService(GameConfig gameConfig) {
      * returns {@code true} if the user guessed the answer.
      */
     public boolean processAnswer(String player, String guess) {
-        final var ANSWER = gameConfig.questions()
-                .entrySet()
-                .stream()
-                .filter(e -> e.getKey().equals(player))
-                .map(Map.Entry::getValue)
-                .collect(Collectors.joining());
         gameConfig.questions().replace(player, null);
-        return guess.equals(ANSWER);
+        boolean isCorrectGuess = RandomMathProblemGenerator.isCorrect(guess);
+        log.info("isCorrectGuess = " + isCorrectGuess);
+        return isCorrectGuess;
     }
 
     public boolean isDone(String player) {

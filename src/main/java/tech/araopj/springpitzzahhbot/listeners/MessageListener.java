@@ -61,7 +61,7 @@ import static java.time.ZoneId.of;
 @Slf4j
 @Component
 @AllArgsConstructor
-public class MessageListener extends ListenerAdapter {
+public class MessageListener extends ListenerAdapter { // TODO: Decouple code
 
     private final MessageCheckerService messageCheckerService;
     private final ConfessionService confessionService;
@@ -80,13 +80,13 @@ public class MessageListener extends ListenerAdapter {
         final var PREFIX = commandsService.getPrefix();
         final var MESSAGE = event.getMessage().getContentRaw();
         if (MESSAGE.startsWith(PREFIX)) {
-            log.debug("Command received: {}", MESSAGE);
-            log.debug("Commands started with: {}", PREFIX);
+            log.info("Command received: {}", MESSAGE);
+            log.info("Commands started with: {}", PREFIX);
             commandManager.handle(event);
         }
         else {
             if (MESSAGE.equals(commandsService.getVerifyCommand()) && Objects.requireNonNull(event.getMember()).isOwner()) {
-                log.debug("Command received: {}", MESSAGE);
+                log.info("Command received: {}", MESSAGE);
                 final var BUTTON = primary("verify-button", "Verify");
                 event.getGuild()
                         .createCategory(categoryService.welcomeCategoryName())
@@ -153,7 +153,7 @@ public class MessageListener extends ListenerAdapter {
                     // TODO: refactor embedded messages, remove code and effort duplication
                     else if (!AUTHOR.isBot()) {
                         var contains = messageCheckerService.searchForBadWord(event.getMessage().getContentRaw());
-                        log.debug("is bad word = " + contains);
+                        log.info("is bad word = " + contains);
                         if (contains && !AUTHOR.isBot()) {
                             violationService.addViolation(AUTHOR.getName());
                             var isVeryBad = violationService.violatedThreeTimes(AUTHOR.getName());
@@ -203,7 +203,7 @@ public class MessageListener extends ListenerAdapter {
                                 event.getMessage()
                                         .replyEmbeds(messageUtil.getEmbedBuilder().build())
                                         .mentionRepliedUser(true)
-                                        .queue();
+                                        .queue(m -> m.delete().queueAfter(5, SECONDS)); // TODO: use config to get delay.
                                 event.getMessage().delete().queueAfter(5, SECONDS);
                             }
                         }

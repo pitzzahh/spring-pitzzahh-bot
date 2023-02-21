@@ -69,7 +69,7 @@ public record Game(
         final var PLAYER = requireNonNull(context.event().getMember(), "Null player").getEffectiveName();
         final var SELECTED_DIFFICULTY = requireNonNull(context.getEvent().getOption("difficulty"), "Null game difficulty").getAsString();
         final var DIFFICULTY = Difficulty.valueOf(SELECTED_DIFFICULTY);
-        log.debug("DIFFICULTY = " + RandomMathProblemGenerator.getDifficulty());
+        log.info("DIFFICULTY = " + RandomMathProblemGenerator.getDifficulty());
         final var COLOR = switch (DIFFICULTY) {
             case EASY -> GREEN;
             case MEDIUM -> YELLOW;

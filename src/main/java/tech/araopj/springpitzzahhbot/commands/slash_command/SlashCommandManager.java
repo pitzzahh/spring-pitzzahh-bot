@@ -24,14 +24,15 @@
 
 package tech.araopj.springpitzzahhbot.commands.slash_command;
 
+import tech.araopj.springpitzzahhbot.commands.slash_command.commands.confessions.Confession;
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.game.service.GameService;
-import tech.araopj.springpitzzahhbot.commands.slash_command.commands.confessions.service.SecretsService;
-import tech.araopj.springpitzzahhbot.commands.slash_command.commands.game.Game;
-import tech.araopj.springpitzzahhbot.commands.slash_command.commands.confessions.Secret;
+import tech.araopj.springpitzzahhbot.commands.slash_command.commands.confessions.service.ConfessionService;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import tech.araopj.springpitzzahhbot.commands.slash_command.commands.game.Game;
 import tech.araopj.springpitzzahhbot.exceptions.CommandAlreadyExistException;
 import tech.araopj.springpitzzahhbot.config.channels.service.ChannelService;
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.Joke;
+import tech.araopj.springpitzzahhbot.commands.service.CommandsService;
 import tech.araopj.springpitzzahhbot.utilities.MessageUtil;
 import org.springframework.stereotype.Component;
 import org.jetbrains.annotations.NotNull;
@@ -49,13 +50,14 @@ public class SlashCommandManager {
     private final Map<String, SlashCommand> COMMANDS = new HashMap<>();
 
     public SlashCommandManager(
+            ConfessionService confessionService,
+            CommandsService commandsService,
             ChannelService channelService,
-            SecretsService secretsService,
             GameService gameService,
             MessageUtil messageUtil
     ) {
         addCommands(
-                new Secret(channelService, secretsService, messageUtil),
+                new Confession(confessionService, commandsService, channelService, messageUtil),
                 new Game(gameService, messageUtil),
                 new Joke(messageUtil)
         );

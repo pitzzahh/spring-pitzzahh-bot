@@ -5,12 +5,12 @@ import org.springframework.beans.factory.annotation.Value;
 import lombok.Getter;
 @Getter
 @Configuration
-public class SecretsConfig {
+public class ConfessionConfig {
 
-    @Value("${bot.channel.enter-confession-channel}")
+    @Value("${bot.channel.confessions.enter-confession-channel.name}")
     private String enterSecretChannel;
 
-    @Value("${bot.channel.sent-confessions-channel}")
+    @Value("${bot.channel.confessions.sent-confessions-channel.name}")
     private String sentSecretChannel;
 
 }

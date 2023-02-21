@@ -89,14 +89,14 @@ public record Confession(
             message(
                     "Cannot use command here",
                     format(
-                            "To tell a confessions message, go to %s",
+                            "To tell a confessions, go to %s",
                             channelService
                                     .getChannelByName(
                                             context.event(),
-                                            confessionService
-                                                    .enterSecretChannelName()
+                                            confessionService.enterSecretChannelName()
                                     )
-                                    .map(TextChannel::getAsMention).orElse("channel")
+                                    .map(TextChannel::getAsMention)
+                                    .orElse("channel")
                     )
             );
             context.getEvent()
@@ -136,7 +136,19 @@ public record Confession(
      * @param context the context of the command.
      */
     private void confirmationMessage(CommandContext context) {
-        message("Confession message sent", "Your secret message has been sent to the confessions channel");
+        message(
+                "Confession message sent",
+                format(
+                        "Your secret message has been sent to the %s channel",
+                        channelService
+                                .getChannelByName(
+                                        context.event(),
+                                        confessionService.sentSecretChannelName()
+                                )
+                                .map(TextChannel::getAsMention)
+                                .orElse("channel")
+                )
+        );
         context.getEvent()
                 .getInteraction()
                 .reply(messageUtil.getMessageBuilder().build())

@@ -59,14 +59,19 @@ public class ButtonListener extends ListenerAdapter {
         else if ("verify-button".equals(ID)) {
             final var VERIFIED_ROLE = Objects.requireNonNull(event.getGuild(), "Cannot find verified role").getRolesByName("verified", false).stream().findAny();
             if (VERIFIED_ROLE.isPresent()) {
+                log.debug("Verified role is present");
                 assert MEMBER != null;
                 var isVerified = MEMBER.getRoles()
                         .stream()
                         .map(Role::getName)
                         .anyMatch(e -> VERIFIED_ROLE.get().getName().equals(e));
                 messageUtil.getMessageBuilder().clear();
-                if (isVerified) message(false);
+                if (isVerified) {
+                    log.debug("User {} is already verified", MEMBER.getUser().getAsTag());
+                    message(false);
+                }
                 else {
+                    log.debug("User {} is verified", MEMBER.getUser().getAsTag());
                     message(true);
                     event.getGuild().addRoleToMember(MEMBER, VERIFIED_ROLE.get()).queue();
                 }
@@ -74,10 +79,12 @@ public class ButtonListener extends ListenerAdapter {
                         .replyEmbeds(messageUtil.getEmbedBuilder().build())
                         .setEphemeral(true)
                         .queue();
-            }
+            } else log.error("Verified role is not present");
         }
     }
+
     private void message(boolean flag) {
+        log.debug("Message is being sent");
         messageUtil.getEmbedBuilder()
                 .clear()
                 .clearFields()

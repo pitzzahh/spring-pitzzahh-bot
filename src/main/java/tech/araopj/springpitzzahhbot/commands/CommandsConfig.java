@@ -32,14 +32,17 @@ import lombok.Getter;
 @Configuration
 public class CommandsConfig {
 
-    @Value("${bot.commands.verify-command}")
+    @Value("${bot.commands.verification.verify-command}")
     private String verifyCommand;
 
-    @Value("${bot.commands.confess-command}")
+    @Value("${bot.commands.confessions.confess-command}")
     private String confessCommand;
 
-    @Value("${bot.commands.member-updates-command}")
+    @Value("${bot.commands.member-updates.member-updates-command}")
     private String memberUpdatesCommand;
+
+    @Value("${bot.commands.confessions.message-deletion-delay-in-minutes}")
+    private int messageDeletionDelayInMinutes;
 
     @Value("${bot.commands.prefix}")
     private String prefix;

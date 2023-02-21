@@ -24,24 +24,22 @@
 
 package tech.araopj.springpitzzahhbot.commands.slash_command.commands.confessions;
 
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.springframework.stereotype.Component;
+import tech.araopj.springpitzzahhbot.commands.service.CommandsService;
 import tech.araopj.springpitzzahhbot.commands.slash_command.CommandContext;
 import tech.araopj.springpitzzahhbot.commands.slash_command.SlashCommand;
-import tech.araopj.springpitzzahhbot.commands.slash_command.commands.confessions.service.SecretsService;
+import tech.araopj.springpitzzahhbot.commands.slash_command.commands.confessions.service.ConfessionService;
 import tech.araopj.springpitzzahhbot.config.channels.service.ChannelService;
 import tech.araopj.springpitzzahhbot.utilities.MessageUtil;
-
 import java.awt.*;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-
 import static java.awt.Color.GREEN;
 import static java.lang.String.format;
 import static java.time.LocalDateTime.now;
@@ -54,9 +52,10 @@ import static java.util.concurrent.TimeUnit.MINUTES;
  * Class used to manage confessions slash command.
  */
 @Component
-public record Secret(
+public record Confession(
+        ConfessionService confessionService,
+        CommandsService commandsService,
         ChannelService channelService,
-        SecretsService secretsService,
         MessageUtil messageUtil
 ) implements SlashCommand {
 
@@ -71,10 +70,12 @@ public record Secret(
      * @param context the command context containing the information about the command.
      */
     private void process(CommandContext context) {
-        if (context.getEvent().getChannel().getName().equals(secretsService.enterSecretChannelName())) {
-            final var CONFESSIONS = channelService.getChannelByName(context.getEvent(), "SENT_SECRET_CHANNEL");
+        if (context.getEvent().getChannel().getName().equals(confessionService.enterSecretChannelName())) {
+            final var CONFESSIONS = channelService.getChannelByName(context.getEvent(), confessionService.sentSecretChannelName());
 
-            final var SECRET_MESSAGE = Objects.requireNonNull(context.getEvent().getOption("confessions-message")).getAsString();
+            final var SECRET_MESSAGE = Objects.requireNonNull(
+                    context.getEvent().getOption(name().get().concat("ion"))
+            ).getAsString();
 
             messageUtil.getEmbedBuilder()
                     .clear()
@@ -83,7 +84,7 @@ public record Secret(
                     .setDescription(SECRET_MESSAGE)
                     .setFooter("anonymous 👀")
                     .setTimestamp(now(of("UTC")));
-            CONFESSIONS.ifPresent(c -> c.sendMessageEmbeds(messageUtil.getEmbedBuilder().build()).queue(message -> confirmationMessage(context, message)));
+            CONFESSIONS.ifPresent(c -> c.sendMessageEmbeds(messageUtil.getEmbedBuilder().build()).queue(message -> confirmationMessage(context)));
         } else {
             message(
                     "Cannot use command here",
@@ -92,7 +93,7 @@ public record Secret(
                             channelService
                                     .getChannelByName(
                                             context.event(),
-                                            secretsService
+                                            confessionService
                                                     .enterSecretChannelName()
                                     )
                                     .map(TextChannel::getAsMention).orElse("channel")
@@ -117,9 +118,10 @@ public record Secret(
                 .setColor(GREEN)
                 .setTitle(title)
                 .setDescription(description)
-                .setFooter(format("This message will be deleted on %s",
-                                now(of("UTC"))
-                                        .plusMinutes(1)
+                .setFooter(
+                        format(
+                                "This message will be deleted on %s",
+                                now().plusMinutes(commandsService.messageDeletionDelay())
                                         .format(ofLocalizedTime(SHORT))
                         )
                 );
@@ -132,16 +134,14 @@ public record Secret(
      * Constructs the confirmation message when a user send a confessions message.
      *
      * @param context the context of the command.
-     * @param message the message to be deleted after.
      */
-    private void confirmationMessage(CommandContext context, Message message) {
-        message("Secret message sent", "This message will be deleted");
+    private void confirmationMessage(CommandContext context) {
+        message("Confession message sent", "Your secret message has been sent to the confessions channel");
         context.getEvent()
                 .getInteraction()
                 .reply(messageUtil.getMessageBuilder().build())
                 .setEphemeral(true)
-                .queue();
-        message.delete().queueAfter(1, MINUTES);
+                .queue(m -> m.deleteOriginal().queueAfter(commandsService.messageDeletionDelay(), MINUTES));
     }
 
     /**
@@ -152,7 +152,7 @@ public record Secret(
      */
     @Override
     public Supplier<String> name() {
-        return () -> "confessions";
+        return () -> "confess";
     }
 
     /**
@@ -170,8 +170,8 @@ public record Secret(
         ).addOptions(
                 new OptionData(
                         OptionType.STRING,
-                        "confessions-message",
-                        "Enter your confessions message",
+                        name().get().concat("ion"),
+                        "Enter your confession",
                         true)
         );
     }
@@ -184,6 +184,6 @@ public record Secret(
      */
     @Override
     public Supplier<String> description() {
-        return () -> "Tell a confessions message";
+        return () -> "Tell a confession message";
     }
 }

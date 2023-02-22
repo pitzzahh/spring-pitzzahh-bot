@@ -31,15 +31,11 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.guild.GenericGuildEvent;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.springframework.stereotype.Service;
-import lombok.AllArgsConstructor;
-import java.util.Objects;
 import java.util.Optional;
+import java.util.Objects;
 
 @Service
-@AllArgsConstructor
-public class ChannelService  {
-
-    private final ChannelsConfig channelsConfig;
+public record ChannelService(ChannelsConfig channelsConfig)  {
 
     public String verifyChannelName() {
         return channelsConfig.getVerifyChannelName();

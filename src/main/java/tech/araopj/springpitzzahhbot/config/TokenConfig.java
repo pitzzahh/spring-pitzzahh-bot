@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @Configuration
-public class DiscordBotConfig {
+public class TokenConfig {
 
     @Value("${bot.token}")
     private String token;

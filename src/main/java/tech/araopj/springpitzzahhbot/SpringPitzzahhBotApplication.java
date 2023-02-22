@@ -53,7 +53,7 @@ public class SpringPitzzahhBotApplication {
 
     @Bean
     public ShardManager shardManager() {
-        log.info("Initializing DiscordBotConfig");
+        log.info("Initializing ShardManager...");
         var builder = DefaultShardManagerBuilder.createDefault(discordBotConfig.getToken());
 
         builder.setStatus(OnlineStatus.ONLINE)

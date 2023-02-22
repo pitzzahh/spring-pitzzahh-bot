@@ -24,6 +24,7 @@
 
 package tech.araopj.springpitzzahhbot.commands.slash_command.commands.confessions;
 
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
@@ -51,6 +52,7 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 /**
  * Class used to manage confessions slash command.
  */
+@Slf4j
 @Component
 public record Confession(
         ConfessionService confessionService,
@@ -71,6 +73,7 @@ public record Confession(
      */
     private void process(CommandContext context) {
         if (context.getEvent().getChannel().getName().equals(confessionService.enterSecretChannelName())) {
+            log.info("User {} used confession command in {} channel", context.getEvent().getUser().getAsTag(), context.getEvent().getChannel().getName());
             final var CONFESSIONS = channelService.getChannelByName(context.getEvent(), confessionService.sentSecretChannelName());
 
             final var SECRET_MESSAGE = Objects.requireNonNull(
@@ -85,7 +88,9 @@ public record Confession(
                     .setFooter("anonymous 👀")
                     .setTimestamp(now(of("UTC")));
             CONFESSIONS.ifPresent(c -> c.sendMessageEmbeds(messageUtil.getEmbedBuilder().build()).queue(message -> confirmationMessage(context)));
+            log.info("Sent confession message to {} channel", confessionService.sentSecretChannelName());
         } else {
+            log.warn("User {} tried to use confession command in {} channel", context.getEvent().getUser().getAsTag(), context.getEvent().getChannel().getName());
             message(
                     "Cannot use command here",
                     format(
@@ -104,6 +109,7 @@ public record Confession(
                     .reply(messageUtil.getMessageBuilder().build())
                     .setEphemeral(true)
                     .queue();
+            log.info("Sent ephemeral message to user {}", context.getEvent().getUser().getAsTag());
         }
     }
 

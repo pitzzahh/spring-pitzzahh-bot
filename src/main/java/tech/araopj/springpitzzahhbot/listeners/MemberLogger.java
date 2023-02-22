@@ -24,6 +24,8 @@
 
 package tech.araopj.springpitzzahhbot.listeners;
 
+import tech.araopj.springpitzzahhbot.config.channels.service.ChannelService;
+import tech.araopj.springpitzzahhbot.utilities.MessageUtil;
 import lombok.AllArgsConstructor;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -33,9 +35,6 @@ import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
-import tech.araopj.springpitzzahhbot.config.channels.ChannelsConfig;
-import tech.araopj.springpitzzahhbot.config.channels.service.ChannelService;
-import tech.araopj.springpitzzahhbot.utilities.MessageUtil;
 import static java.awt.Color.GREEN;
 import static java.awt.Color.RED;
 import static java.lang.String.format;
@@ -46,7 +45,6 @@ import static java.time.ZoneId.of;
 @AllArgsConstructor
 public class MemberLogger extends ListenerAdapter {
 
-    private final ChannelsConfig channelsConfig;
     private final ChannelService channelService;
     private final MessageUtil messageUtil;
 
@@ -57,7 +55,7 @@ public class MemberLogger extends ListenerAdapter {
      */
     @Override
     public void onGuildJoin(@NotNull GuildJoinEvent event) {
-        var memberUpdatesChannel = channelsConfig.getMemberUpdatesChannel();
+        var memberUpdatesChannel = channelService.getMemberUpdatesChannel();
         event.getGuild()
                 .getCategoriesByName(memberUpdatesChannel, true)
                 .stream()
@@ -73,7 +71,7 @@ public class MemberLogger extends ListenerAdapter {
      */
     @Override
     public void onGuildLeave(@NotNull GuildLeaveEvent event) {
-        var memberUpdatesChannel = channelsConfig.getMemberUpdatesChannel();
+        var memberUpdatesChannel = channelService.getMemberUpdatesChannel();
         event.getGuild()
                 .getCategoriesByName(memberUpdatesChannel, true)
                 .stream()

@@ -85,7 +85,6 @@ public record BotService(
                         )
                 ),
                 new MemberLogger(
-                        new ChannelsConfig(),
                         new ChannelService(new ChannelsConfig()),
                         new MessageUtil()
                 )

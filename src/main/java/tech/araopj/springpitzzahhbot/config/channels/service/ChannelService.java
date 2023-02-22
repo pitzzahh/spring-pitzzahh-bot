@@ -29,16 +29,21 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.guild.GenericGuildEvent;
 import net.dv8tion.jda.api.entities.TextChannel;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tech.araopj.springpitzzahhbot.config.channels.ChannelsConfig;
-
 import java.util.Objects;
 import java.util.Optional;
 
 @Service
-public record ChannelService(
-        ChannelsConfig channelsConfig
-) {
+public class ChannelService  {
+
+    private final ChannelsConfig channelsConfig;
+
+    @Autowired
+    public ChannelService(ChannelsConfig channelsConfig) {
+        this.channelsConfig = channelsConfig;
+    }
 
     public String verifyChannelName() {
         return channelsConfig.getVerifyChannelName();

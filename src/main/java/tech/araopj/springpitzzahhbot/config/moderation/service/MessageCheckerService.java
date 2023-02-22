@@ -24,6 +24,7 @@
 package tech.araopj.springpitzzahhbot.config.moderation.service;
 
 import tech.araopj.springpitzzahhbot.config.moderation.ModerationConfig;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.nio.charset.StandardCharsets;
 import com.google.common.io.Resources;
@@ -31,7 +32,14 @@ import java.io.IOException;
 import java.net.URL;
 
 @Service
-public record MessageCheckerService(ModerationConfig moderationConfig) {
+public class MessageCheckerService {
+
+    private final ModerationConfig moderationConfig;
+
+    @Autowired
+    public MessageCheckerService(ModerationConfig moderationConfig) {
+        this.moderationConfig = moderationConfig;
+    }
 
     public boolean searchForBadWord(String rawMessage) {
         return moderationConfig.warnings()

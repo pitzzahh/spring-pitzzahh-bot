@@ -1,11 +1,19 @@
 package tech.araopj.springpitzzahhbot.config.moderation.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import tech.araopj.springpitzzahhbot.config.moderation.ModerationConfig;
 import org.springframework.stereotype.Service;
 import java.util.Map;
 
 @Service
-public record ViolationService(ModerationConfig moderationConfig) {
+public class ViolationService {
+
+    private final ModerationConfig moderationConfig;
+
+    @Autowired
+    public ViolationService(ModerationConfig moderationConfig) {
+        this.moderationConfig = moderationConfig;
+    }
 
     /**
      * Adds violation to anyone who says a bad words.

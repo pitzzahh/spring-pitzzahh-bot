@@ -142,11 +142,11 @@ public class MessageListener extends ListenerAdapter { // TODO: Decouple code
                                 .clearFields()
                                 .setColor(RED)
                                 .appendDescription(format("Please use `/%s` to tell a confessions", confession.name().get()))
-                                .setTimestamp(now(of("UTC")).plusSeconds(10))
+                                .setTimestamp(now(of("UTC")).plusMinutes(commandsService.messageDeletionDelay()))
                                 .setFooter("This message will be automatically deleted on");
                         event.getMessage()
                                 .replyEmbeds(messageUtil.getEmbedBuilder().build())
-                                .queue(e -> e.delete().queueAfter(5, SECONDS));
+                                .queue(e -> e.delete().queueAfter(commandsService.messageDeletionDelay(), MINUTES));
                         event.getMessage().delete().queue();
                     }
 
@@ -190,7 +190,7 @@ public class MessageListener extends ListenerAdapter { // TODO: Decouple code
                                                 format(
                                                         "This message will be deleted on %s",
                                                         now(systemDefaultZone())
-                                                                .plusMinutes(1)
+                                                                .plusMinutes(violationService.getReplyDeletionDelayInMinutes())
                                                                 .format(
                                                                         ofLocalizedTime(SHORT)
                                                                 )
@@ -203,8 +203,8 @@ public class MessageListener extends ListenerAdapter { // TODO: Decouple code
                                 event.getMessage()
                                         .replyEmbeds(messageUtil.getEmbedBuilder().build())
                                         .mentionRepliedUser(true)
-                                        .queue(m -> m.delete().queueAfter(5, SECONDS)); // TODO: use config to get delay.
-                                event.getMessage().delete().queueAfter(5, SECONDS);
+                                        .queue(m -> m.delete().queueAfter(violationService.getReplyDeletionDelayInMinutes(), MINUTES)); // TODO: use config to get delay.
+                                event.getMessage().delete().queueAfter(violationService.getMessageDeletionDelayInSeconds(), SECONDS);
                             }
                         }
 

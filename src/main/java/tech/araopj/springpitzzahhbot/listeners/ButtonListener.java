@@ -71,9 +71,10 @@ public class ButtonListener extends ListenerAdapter {
                     message(false);
                 }
                 else {
-                    log.info("User {} is verified", MEMBER.getUser().getAsTag());
+                    log.info("User {} roles are", MEMBER.getRoles());
                     message(true);
                     event.getGuild().addRoleToMember(MEMBER, VERIFIED_ROLE.get()).queue();
+                    log.info("User {} is verified", MEMBER.getUser().getAsTag());
                 }
                 event.getInteraction()
                         .replyEmbeds(messageUtil.getEmbedBuilder().build())

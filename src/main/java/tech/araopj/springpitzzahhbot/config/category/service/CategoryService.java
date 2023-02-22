@@ -7,8 +7,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class CategoryService {
 
-    private final  CategoryConfig categoryConfig;
+    private final CategoryConfig categoryConfig;
 
+    @Autowired
     public CategoryService(CategoryConfig categoryConfig) {
         this.categoryConfig = categoryConfig;
     }

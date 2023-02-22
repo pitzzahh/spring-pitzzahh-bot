@@ -23,3 +23,6 @@ bot:
     welcome-category: information
     member-updates-category: member-updates
     create-confessions-category: confessions
+  moderation:
+    reply-deletion-delay-in-minutes: 1 # must be a whole positive number above 0
+    message-deletion-delay-in-seconds: 10 # must be a whole positive number above 0

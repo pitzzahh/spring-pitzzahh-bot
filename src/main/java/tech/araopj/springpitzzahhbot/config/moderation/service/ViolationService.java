@@ -31,4 +31,12 @@ public record ViolationService(ModerationConfig moderationConfig) {
         return violated;
     }
 
+    public int getReplyDeletionDelayInMinutes() {
+        return moderationConfig.getReplyDeletionDelayInMinutes();
+    }
+
+    public int getMessageDeletionDelayInSeconds() {
+        return moderationConfig.getMessageDeletionDelayInSeconds();
+    }
+
 }

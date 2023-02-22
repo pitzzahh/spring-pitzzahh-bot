@@ -14,12 +14,12 @@ import tech.araopj.springpitzzahhbot.commands.slash_command.SlashCommandManager;
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.confessions.Confession;
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.confessions.service.ConfessionService;
 import tech.araopj.springpitzzahhbot.commands.slash_command.commands.game.service.GameService;
-import tech.araopj.springpitzzahhbot.config.DiscordBotConfig;
 import tech.araopj.springpitzzahhbot.config.category.service.CategoryService;
 import tech.araopj.springpitzzahhbot.config.channels.ChannelsConfig;
 import tech.araopj.springpitzzahhbot.config.channels.service.ChannelService;
 import tech.araopj.springpitzzahhbot.config.moderation.service.MessageCheckerService;
 import tech.araopj.springpitzzahhbot.config.moderation.service.ViolationService;
+import tech.araopj.springpitzzahhbot.config.service.DiscordBotConfigService;
 import tech.araopj.springpitzzahhbot.listeners.ButtonListener;
 import tech.araopj.springpitzzahhbot.listeners.MemberLogger;
 import tech.araopj.springpitzzahhbot.listeners.MessageListener;
@@ -31,9 +31,9 @@ import java.io.IOException;
 @Slf4j
 @Service
 public record BotService(
+        DiscordBotConfigService discordBotConfigService,
         MessageCheckerService messageCheckerService,
         ConfessionService confessionService,
-        DiscordBotConfig discordBotConfig,
         ViolationService violationService,
         CommandsService commandsService,
         CategoryService categoryService,
@@ -47,7 +47,7 @@ public record BotService(
     @Bean
     public ShardManager shardManager() {
         log.info("Initializing ShardManager...");
-        var builder = DefaultShardManagerBuilder.createDefault(discordBotConfig.getToken());
+        var builder = DefaultShardManagerBuilder.createDefault(discordBotConfigService.getToken());
 
         builder.setStatus(OnlineStatus.ONLINE)
                 .enableIntents(GatewayIntent.MESSAGE_CONTENT)

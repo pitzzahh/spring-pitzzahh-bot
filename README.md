@@ -1,4 +1,5 @@
 # My Discord Bot
+## Not maintained. Replaced with this repo: [pitzzahh-bot](https://github.com/pitzzahh/pitzzahh-bot/) updates are here
 ___
 My Discord bot is built using Java Discord API with Spring framework integration. It contains several features, including:
 ___
